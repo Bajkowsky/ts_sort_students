@@ -1,10 +1,11 @@
 
+/* eslint-disable implicit-arrow-linebreak */
 export interface Student {
-  name: string,
-  surname: string,
-  age: number,
-  married: boolean,
-  grades: Array<number>,
+  name: string;
+  surname: string;
+  age: number;
+  married: boolean;
+  grades: Array<number>;
 }
 
 export enum SortType {
@@ -18,65 +19,47 @@ export enum SortType {
 export type SortOrder = 'asc' | 'desc';
 
 function countAverage(grades: Array<number>): number {
-  const countSum: number = grades.reduce((elem, val) => elem + val);
+  const countSum: number = grades.reduce((elem, val) => elem + val, 0);
   const countAve: number = countSum / grades.length;
 
   return countAve;
 }
 
-export function sortStudents(students: Array<Student>,
-  sortBy: SortType, order: SortOrder): Array<Student> {
-  let sortedStudents: Array<Student> = [];
+export function sortStudents(
+  students: Array<Student>,
+  sortBy: SortType,
+  order: SortOrder,
+): Array<Student> {
+  const sortedStudents = [...students];
+
+  const compareStrings = (a: string, b: string): number =>
+    (order === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
+
+  const compareNumbers = (a: number, b: number): number =>
+    (order === 'asc' ? a - b : b - a);
 
   switch (sortBy) {
     case SortType.Name:
-      sortedStudents = [...students].sort((a: Student, b: Student) => {
-        if (order === 'asc') {
-          return a.name.localeCompare(b.name);
-        }
-
-        return b.name.localeCompare(a.name);
-      });
-      break;
-
     case SortType.Surname:
-      sortedStudents = [...students].sort((a: Student, b: Student) => {
-        if (order === 'asc') {
-          return a.surname.localeCompare(b.surname);
-        }
-
-        return b.surname.localeCompare(a.surname);
-      });
+      // Ensure that a[sortBy] is treated as a string
+      sortedStudents.sort((a: Student, b: Student) =>
+        compareStrings(a[sortBy.toLowerCase() as keyof Student] as string,
+          b[sortBy.toLowerCase() as keyof Student] as string));
       break;
 
     case SortType.Age:
-      sortedStudents = [...students].sort((a: Student, b: Student) => {
-        if (order === 'asc') {
-          return a.age - b.age;
-        }
-
-        return b.age - a.age;
-      });
+      sortedStudents.sort((a: Student, b: Student) =>
+        compareNumbers(a.age, b.age));
       break;
 
     case SortType.Married:
-      sortedStudents = [...students].sort((a: Student, b: Student) => {
-        if (order === 'asc') {
-          return Number(a.married) - Number(b.married);
-        }
-
-        return Number(b.married) - Number(a.married);
-      });
+      sortedStudents.sort((a: Student, b: Student) =>
+        compareNumbers(Number(a.married), Number(b.married)));
       break;
 
     case SortType.AverageGrade:
-      sortedStudents = [...students].sort((a: Student, b: Student) => {
-        if (order === 'asc') {
-          return countAverage(a.grades) - countAverage(b.grades);
-        }
-
-        return countAverage(b.grades) - countAverage(a.grades);
-      });
+      sortedStudents.sort((a: Student, b: Student) =>
+        compareNumbers(countAverage(a.grades), countAverage(b.grades)));
       break;
 
     default:
